@@ -1,0 +1,70 @@
+% instance
+color(C):-ball(_,_,C).
+nonPallina(X,Y):- not ball(X,Y,C), cell(X,Y), color(C).
+edge(X,Y,X1,Y):-cell(X,Y),cell(X1,Y), nonPallina(X1,Y), X1=X+1.
+edge(X,Y,X1,Y):-cell(X,Y),cell(X1,Y), nonPallina(X1,Y), X1=X-1.
+edge(X,Y,X,Y1):-cell(X,Y),cell(X,Y1), nonPallina(X,Y1), Y1=Y+1.
+edge(X,Y,X,Y1):-cell(X,Y),cell(X,Y1), nonPallina(X,Y1), Y1=Y-1.
+
+path(X,Y,X1,Y1):-edge(X,Y,X1,Y1).
+path(X,Y,X1,Y1):-path(X,Y,X2,Y2), path(X2,Y2,X1,Y1).
+consecutiveOrizzontali(X,Y,X,Y1) :- ball(X,Y,C), ball(X,Y1,C), Y1=Y+1.
+consecutiveVerticali(X,Y,X1,Y) :- ball(X,Y,C), ball(X1,Y,C), X1=X+1.
+consecutiveDiagonalePrincipale(X,Y,X1,Y1) :- ball(X,Y,C), ball(X1,Y1,C), X1=X+1, Y1=Y+1.
+consecutiveDiagonaleSecondaria(X,Y,X1,Y1) :- ball(X,Y,C), ball(X1,Y1,C), X1=X+1, Y1=Y-1.
+consecutiveOrizzontali(X,Y,X1,Y1) :- consecutiveOrizzontali(X,Y,X2,Y2), consecutiveOrizzontali(X2,Y2,X1,Y1).
+consecutiveVerticali(X,Y,X1,Y1):-consecutiveVerticali(X,Y,X2,Y2), consecutiveVerticali(X2,Y2,X1,Y1).
+consecutiveDiagonalePrincipale(X,Y,X1,Y1):-consecutiveDiagonalePrincipale(X,Y,X2,Y2), consecutiveDiagonalePrincipale(X2,Y2,X1,Y1).
+consecutiveDiagonaleSecondaria(X,Y,X1,Y1):-consecutiveDiagonaleSecondaria(X,Y,X2,Y2), consecutiveDiagonaleSecondaria(X2,Y2,X1,Y1).
+allineateOrizz(X,Y,X1,Y1,C):-ball(X,Y,C),ball(X1,Y1,C), consecutiveOrizzontali(X,Y,X1,Y1), X1=X,Y1=Y+1.
+allineateVert(X,Y,X1,Y1,C):-ball(X,Y,C),ball(X1,Y1,C), consecutiveVerticali(X,Y,X1,Y1), X1=X+1,Y1=Y.
+allineateDiagPrinc(X,Y,X1,Y1,C):-ball(X,Y,C),ball(X1,Y1,C), consecutiveDiagonalePrincipale(X,Y,X1,Y1), X1=X+1,Y1=Y+1.
+allineateDiagSec(X,Y,X1,Y1,C):-ball(X,Y,C),ball(X1,Y1,C), consecutiveDiagonaleSecondaria(X,Y,X1,Y1), X1=X-1,Y1=Y-1.
+allineateOrizz(X,Y,X1,Y1,C):-allineateOrizz(X,Y,X2,Y2,C),allineateOrizz(X2,Y2,X1,Y1,C).
+allineateVert(X,Y,X1,Y1,C):-allineateVert(X,Y,X2,Y2,C),allineateVert(X2,Y2,X1,Y1,C).
+allineateDiagPrinc(X,Y,X1,Y1,C):-allineateDiagPrinc(X,Y,X2,Y2,C),allineateDiagPrinc(X2,Y2,X1,Y1,C).
+allineateDiagSec(X,Y,X1,Y1,C):-allineateDiagSec(X,Y,X2,Y2,C),allineateDiagSec(X2,Y2,X1,Y1,C).
+
+intorno(X,Y,C):-cell(X,Y),ball(X1,Y1,C),X1=X+1,Y1=Y+1.
+intorno(X,Y,C):-cell(X,Y),ball(X,Y1,C),Y1=Y+1.
+intorno(X,Y,C):-cell(X,Y),ball(X,Y1,C),Y1=Y-1.
+intorno(X,Y,C):-cell(X,Y),ball(X1,Y,C),X1=X+1.
+intorno(X,Y,C):-cell(X,Y),ball(X1,Y,C),X1=X-1.
+intorno(X,Y,C):-cell(X,Y),ball(X1,Y1,C),X1=X-1,Y1=Y-1.
+intorno(X,Y,C):-cell(X,Y),ball(X1,Y1,C),X1=X+1,Y1=Y-1.
+intorno(X,Y,C):-cell(X,Y),ball(X1,Y1,C),X1=X-1,Y1=Y+1.
+liberaOrizzCoda(X,Y,C,N):-cell(X,Y),allineateOrizz(_,_,X1,Y1,C),#count{Y2:allineateOrizz(_,_,_,Y2,C)}=N,X=X1,Y=Y1+1.
+liberaOrizzTesta(X,Y,C,N):-cell(X,Y),allineateOrizz(X1,Y1,_,_,C),#count{Y2:allineateOrizz(_,Y2,_,_,C)}=N,X=X1,Y=Y1-1.
+liberaVerticaleCoda(X,Y,C,N):-cell(X,Y),allineateVert(_,_,X1,Y1,C),#count{X2:allineateVert(_,_,X2,_,C)}=N,X=X1+1,Y=Y1.
+liberaVerticaleTesta(X,Y,C,N):-cell(X,Y),allineateVert(X1,Y1,_,_,C),#count{X2:allineateVert(X2,_,_,_,C)}=N,X=X1-1,Y=Y1.
+liberaDiagPrincCoda(X,Y,C,N):-cell(X,Y),allineateDiagPrinc(_,_,X1,Y1,C),#count{X2,Y2:allineateDiagPrinc(_,_,X2,Y2,C)}=N,X=X1+1,Y=Y1+1.
+liberaDiagPrincTesta(X,Y,C,N):-cell(X,Y),allineateDiagPrinc(X1,Y1,_,_,C),#count{X2,Y2:allineateDiagPrinc(X2,Y2,_,_,C)}=N,X=X1-1,Y=Y1-1.
+liberaDiagSecCoda(X,Y,C,N):-cell(X,Y),allineateDiagSec(_,_,X1,Y1,C),#count{X2,Y2:allineateDiagPrinc(_,_,X2,Y2,C)}=N,X=X1-1,Y=Y1+1.
+liberaDiagSecTesta(X,Y,C,N):-cell(X,Y),allineateDiagSec(X1,Y1,_,_,C),#count{X2,Y2:allineateDiagPrinc(X2,Y2,_,_,C)}=N,X=X1+1,Y=Y1-1.
+cellaLibera(X,Y,C,N):-liberaDiagSecCoda(X,Y,C,N),not ball(X,Y,C).
+cellaLibera(X,Y,C,N):-liberaDiagSecTesta(X,Y,C,N),not ball(X,Y,C).
+cellaLibera(X,Y,C,N):-liberaDiagPrincCoda(X,Y,C,N),not ball(X,Y,C).
+cellaLibera(X,Y,C,N):-liberaDiagPrincTesta(X,Y,C,N),not ball(X,Y,C).
+cellaLibera(X,Y,C,N):-liberaVerticaleCoda(X,Y,C,N),not ball(X,Y,C).
+cellaLibera(X,Y,C,N):-liberaVerticaleTesta(X,Y,C,N),not ball(X,Y,C).
+cellaLibera(X,Y,C,N):-liberaOrizzCoda(X,Y,C,N),not ball(X,Y,C).
+cellaLibera(X,Y,C,N):-liberaOrizzTesta(X,Y,C,N),not ball(X,Y,C).
+
+
+move(X,Y,C1,C2)|notMove(X,Y,C1,C2):-ball(X,Y,C),cell(C1,C2).
+
+
+:-move(X,Y,C1,C2),not path(X,Y,C1,C2).
+:-#count{X,Y,C1,C2:move(X,Y,C1,C2)}>1.
+:-#count{X,Y,C1,C2:move(X,Y,C1,C2)}<1.
+:-move(X,Y,C1,C2),ball(C1,C2,C).
+:~notMove(X,Y,C1,C2),intorno(C1,C2,C). [1:1]
+:~ notMove(X,Y,C1,C2),cellaLibera(C1,C2,C,N),ball(X,Y,C). [N:2]
+:~move(X,Y,C1,C2),allineateOrizz(X,Y,X1,Y1,C). [1:1]
+:~move(X1,Y1,C1,C2),allineateVert(X,Y,X1,Y1,C). [1:1]
+:~move(X1,Y1,C1,C2),allineateDiagPrinc(X,Y,X1,Y1,C). [1:1]
+:~move(X1,Y1,C1,C2),allineateDiagSec(X,Y,X1,Y1,C). [1:1]
+:~move(X1,Y1,C1,C2),allineateOrizz(X,Y,X1,Y1,C). [1:1]
+:~move(X,Y,C1,C2),allineateVert(X,Y,X1,Y1,C). [1:1]
+:~move(X,Y,C1,C2),allineateDiagPrinc(X,Y,X1,Y1,C). [1:1]
+:~move(X,Y,C1,C2),allineateDiagSec(X,Y,X1,Y1,C). [1:1]

@@ -1,0 +1,56 @@
+#maxint = 50000. 
+ 
+budget(3000). 
+mobile(1, tavolo, 400). 
+mobile(2, tavolo, 350).
+ %mobile(3, tavolo, 600).
+ %mobile(4, tavolo, 400). 
+%mobile(30, tavolo, 200).
+ %mobile(31, tavolo, 100).
+ %mobile(32, tavolo, 50). 
+%mobile(33, tavolo, 75). 
+%mobile(5, sedia, 50). 
+%mobile(6, sedia, 50). 
+%mobile(7, sedia, 50). 
+%mobile(8, sedia, 50). 
+mobile(9, sedia, 50).
+ mobile(10, sedia, 100). 
+mobile(11, sedia, 100).
+ mobile(12, armadio, 500).
+ mobile(13, armadio, 450). 
+%mobile(14, armadio, 600).
+ %mobile(15, armadio, 650). 
+%mobile(16, letto, 300). 
+mobile(17, letto, 250).
+
+mobile(18, letto, 300). 
+mobile(19, letto, 400).
+ %mobile(20, poltrona, 300). 
+%mobile(21, poltrona, 300). 
+%mobile(22, poltrona, 350).
+ %mobile(23, poltrona, 400).
+ mobile(24, poltrona, 400).
+ mobile(25, poltrona, 350).
+ mobile(26, poltrona, 1000). 
+ 
+% Guess 
+prendo(X,Tipo,Costo) v nonprendo(X,Tipo,Costo) :- mobile (X, Tipo, Costo). 
+ 
+% Almeno un esemplare per ciascun tipo
+ presoDiUnTipo(T) :- prendo(_,T,_). :- mobile(_,T,_), not presoDiUnTipo(T). 
+ 
+costoTotale(TOT) :- #sum { X : prendo(_, _, X) } = TOT, #int(TOT). 
+ 
+% Non e' possibile superare il budget
+ :- budget(B), costoTotale(T), T > B. 
+ 
+numeroLetti(NL) :- #count { X : prendo (X, letto, _ )  } = NL, #int(NL). 
+ 
+% Non e' possibile prendere meno di 2 letti 
+:- numeroLetti(NL), NL < 2. 
+ 
+% Priorita' alle combinazioni che costano di meno... 
+:~ costoTotale(T). [ T : 2 ] 
+ 
+% Cercare di massimizzare gli armadi 
+:~ nonprendo(_,armadio,_). [ 1 : 1 ]
